@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MySQL 索引优化实践</title>
+  <style>body{margin:0;font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#f8fafc;color:#0f172a;line-height:1.8}.wrap{max-width:900px;margin:0 auto;padding:34px 20px 60px}a{color:#0369a1;text-decoration:none}pre{background:#0f172a;color:#e2e8f0;padding:12px;border-radius:10px;overflow:auto}</style>
+</head>
+<body>
+  <main class="wrap">
+    <a href="../index.html">← 返回首页</a>
+    <h1>MySQL 索引优化实践：从慢 SQL 到稳定低延迟</h1>
+    <p>索引优化的核心不是“多建索引”，而是围绕查询路径减少扫描行数、避免回表、降低随机 IO，并在写入成本和读取收益之间找到平衡。</p>
+
+    <h2>1. 先理解 B+Tree 的代价模型</h2>
+    <ul>
+      <li>主键索引叶子节点存整行数据；二级索引叶子节点存索引列+主键。</li>
+      <li>使用二级索引查询非覆盖字段时，需要回表。</li>
+      <li>范围查询会让后续列无法充分利用复合索引。</li>
+    </ul>
+
+    <h2>2. 慢 SQL 诊断流程</h2>
+    <ol>
+      <li>从慢日志挑选 Top SQL（按总耗时/平均耗时）。</li>
+      <li>用 EXPLAIN 查看 type、rows、filtered、extra。</li>
+      <li>对照业务访问模式决定是否改 SQL 或调索引。</li>
+    </ol>
+    <pre>EXPLAIN SELECT id, title, status
+FROM post
+WHERE author_id = 1024 AND status = 1
+ORDER BY created_at DESC
+LIMIT 20;</pre>
+
+    <h2>3. 关键优化规则</h2>
+    <h3>3.1 复合索引按“过滤度+排序”设计</h3>
+    <p>如果查询固定是 <code>author_id + status + created_at</code>，可建立 <code>(author_id, status, created_at)</code>，同时覆盖 select 字段以减少回表。</p>
+
+    <h3>3.2 避免索引失效</h3>
+    <ul>
+      <li>避免在索引列上使用函数或隐式类型转换。</li>
+      <li>尽量减少前导模糊查询（<code>LIKE '%abc'</code>）。</li>
+      <li>避免 OR 连接多个未命中索引的条件。</li>
+    </ul>
+
+    <h3>3.3 索引不是越多越好</h3>
+    <p>每个新增索引都会增加写入成本、占用缓存与磁盘。需要定期清理冗余索引和低命中索引。</p>
+
+    <h2>4. 生产建议</h2>
+    <ul>
+      <li>对热点查询建立“索引基线”，变更前后压测对比。</li>
+      <li>为大表变更使用在线 DDL 工具，避免长时间锁表。</li>
+      <li>结合 APM 指标监控 p95/p99，防止“平均值掩盖抖动”。</li>
+    </ul>
+  </main>
+</body>
+</html>

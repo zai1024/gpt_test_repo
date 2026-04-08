@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>企业级 RAG 架构落地指南</title>
+  <style>body{margin:0;font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#f8fafc;color:#0f172a;line-height:1.8}.wrap{max-width:900px;margin:0 auto;padding:34px 20px 60px}a{color:#0369a1;text-decoration:none}pre{background:#0f172a;color:#e2e8f0;padding:12px;border-radius:10px;overflow:auto}</style>
+</head>
+<body>
+  <main class="wrap">
+    <a href="../index.html">← 返回首页</a>
+    <h1>企业级 RAG 架构落地指南</h1>
+    <p>RAG（检索增强生成）用于将企业私有知识引入大模型回答流程，目标是提升准确性、可解释性与时效性。</p>
+
+    <h2>1. 基础链路</h2>
+    <ol>
+      <li>文档处理：解析 PDF/网页/工单，统一清洗结构。</li>
+      <li>分块切分：按语义段落切 chunk，附带来源元数据。</li>
+      <li>向量化存储：写入向量数据库，支持 ANN 检索。</li>
+      <li>在线检索：根据问题召回 top-k 片段并重排。</li>
+      <li>回答生成：模型仅基于检索上下文输出并附引用。</li>
+    </ol>
+
+    <h2>2. 降低“幻觉”的关键手段</h2>
+    <ul>
+      <li>提示词中加入“不得超出资料回答”的硬约束。</li>
+      <li>为每段上下文保留来源 URL、文档版本、更新时间。</li>
+      <li>使用 reranker 对召回结果二次排序，提高相关性。</li>
+      <li>对低置信度问题返回“需要人工确认”。</li>
+    </ul>
+
+    <h2>3. 评估体系</h2>
+    <p>不能只看主观体验，应建设离线评测集：包含事实问答、流程问答、时效问题与拒答样例。常见指标包括命中率、引用正确率、回答完整度、拒答准确率。</p>
+
+    <h2>4. 生产化建议</h2>
+    <ul>
+      <li>设计增量更新机制，文档变更后自动重建索引。</li>
+      <li>对敏感数据做访问控制与脱敏处理。</li>
+      <li>全链路可观测：记录 query、检索片段、模型输出、用户反馈。</li>
+      <li>建立反馈闭环：坏答案进入标注池，定期优化分块与提示模板。</li>
+    </ul>
+
+    <pre># 伪代码：RAG 请求流程
+query -> embed -> vector_search(top_k=20)
+      -> rerank(top_n=5)
+      -> prompt_with_context
+      -> LLM.generate
+      -> answer + citations</pre>
+  </main>
+</body>
+</html>

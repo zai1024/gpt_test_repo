@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>React 应用性能优化清单</title>
+  <style>body{margin:0;font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#f8fafc;color:#0f172a;line-height:1.8}.wrap{max-width:900px;margin:0 auto;padding:34px 20px 60px}a{color:#0369a1;text-decoration:none}pre{background:#0f172a;color:#e2e8f0;padding:12px;border-radius:10px;overflow:auto}</style>
+</head>
+<body>
+  <main class="wrap">
+    <a href="../index.html">← 返回首页</a>
+    <h1>React 应用性能优化清单（实战版）</h1>
+    <p>React 性能问题通常来自不必要渲染、过大首屏包、低效数据请求和阻塞主线程任务。优化要从“测量”开始，而不是先改代码。</p>
+
+    <h2>1. 渲染层优化</h2>
+    <ul>
+      <li>使用 <code>React.memo</code> 控制纯展示组件重复渲染。</li>
+      <li>对函数 props 使用 <code>useCallback</code>，避免子组件误触发更新。</li>
+      <li>复杂计算用 <code>useMemo</code> 缓存，并控制依赖项准确性。</li>
+      <li>长列表采用虚拟滚动（如 react-window）。</li>
+    </ul>
+
+    <h2>2. 资源与构建优化</h2>
+    <ul>
+      <li>启用路由级动态导入：<code>const Page = lazy(() =&gt; import('./Page'))</code>。</li>
+      <li>分析打包产物，拆分大体积第三方库。</li>
+      <li>静态资源开启缓存与压缩（brotli/gzip）。</li>
+    </ul>
+
+    <h2>3. 数据请求优化</h2>
+    <ul>
+      <li>对接口进行去重和缓存，减少重复请求。</li>
+      <li>长耗时接口增加骨架屏与超时重试。</li>
+      <li>按页面可见性加载数据，避免“过度预取”。</li>
+    </ul>
+
+    <h2>4. 监控指标与闭环</h2>
+    <p>建议至少跟踪以下指标：FCP、LCP、CLS、INP、JS Heap、路由切换耗时。性能治理是持续工程：发现热点页面 → 分析火焰图 → 小步发布 → 回归验证。</p>
+
+    <pre>import { Profiler } from 'react';
+
+function onRender(id, phase, actualDuration) {
+  console.log(`[${id}] ${phase}: ${actualDuration}ms`);
+}
+
+&lt;Profiler id="OrderPage" onRender={onRender}&gt;
+  &lt;OrderPage /&gt;
+&lt;/Profiler&gt;</pre>
+  </main>
+</body>
+</html>

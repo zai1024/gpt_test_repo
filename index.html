@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IT类技术文档分享</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: rgba(15, 23, 42, 0.75);
+      --text-main: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-2: #22d3ee;
+      --border: rgba(148, 163, 184, 0.25);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at 10% 20%, #1e293b 0%, #0b1120 40%, #020617 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      width: 540px;
+      height: 540px;
+      border-radius: 50%;
+      filter: blur(90px);
+      z-index: -1;
+      opacity: 0.35;
+      animation: float 18s ease-in-out infinite;
+    }
+
+    body::before {
+      background: #0ea5e9;
+      top: -180px;
+      left: -120px;
+    }
+
+    body::after {
+      background: #8b5cf6;
+      right: -120px;
+      bottom: -200px;
+      animation-delay: -7s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(30px); }
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+      background-size: 36px 36px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 48px 20px 60px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 3.2vw, 3rem);
+      letter-spacing: 0.05em;
+      color: #e0f2fe;
+      text-shadow: 0 0 18px rgba(34, 211, 238, 0.25);
+    }
+
+    .subtitle {
+      margin-top: 10px;
+      color: var(--text-muted);
+      font-size: 1.03rem;
+    }
+
+    .doc-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 16px;
+    }
+
+    .doc-item a {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.76));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      backdrop-filter: blur(4px);
+    }
+
+    .doc-item a:hover {
+      transform: translateY(-4px);
+      border-color: rgba(56, 189, 248, 0.55);
+      box-shadow: 0 14px 30px rgba(2, 6, 23, 0.45);
+    }
+
+    .doc-title {
+      margin: 0 0 8px;
+      font-size: 1.24rem;
+      color: #e0f2fe;
+    }
+
+    .doc-desc {
+      margin: 0;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    footer {
+      margin-top: 30px;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-overlay"></div>
+  <main class="container">
+    <header>
+      <h1>IT类技术文档分享</h1>
+      <p class="subtitle">聚焦后端、云原生、前端工程化与AI应用落地，点击任意文档查看完整内容。</p>
+    </header>
+
+    <ul class="doc-list">
+      <li class="doc-item">
+        <a href="articles/k8s-troubleshooting.html">
+          <h2 class="doc-title">1. Kubernetes 故障排查速查手册</h2>
+          <p class="doc-desc">系统梳理 Pod 无法启动、探针失败、服务不可达、节点异常等常见问题的定位路径，并提供可直接执行的命令模板。</p>
+        </a>
+      </li>
+      <li class="doc-item">
+        <a href="articles/mysql-index-guide.html">
+          <h2 class="doc-title">2. MySQL 索引优化实践：从慢 SQL 到稳定低延迟</h2>
+          <p class="doc-desc">结合 InnoDB B+Tree 特性，讲解最左前缀、覆盖索引、回表、索引失效场景及优化方法，附执行计划分析要点。</p>
+        </a>
+      </li>
+      <li class="doc-item">
+        <a href="articles/react-performance.html">
+          <h2 class="doc-title">3. React 应用性能优化清单（实战版）</h2>
+          <p class="doc-desc">从组件渲染、状态管理、代码分割、资源加载到监控指标，给出可落地的性能治理方案与排查思路。</p>
+        </a>
+      </li>
+      <li class="doc-item">
+        <a href="articles/cicd-bluegreen.html">
+          <h2 class="doc-title">4. CI/CD 与蓝绿发布设计：降低线上变更风险</h2>
+          <p class="doc-desc">介绍从分支策略、流水线质量门禁到蓝绿切流和回滚的全流程设计，帮助团队构建可审计、可回退的交付体系。</p>
+        </a>
+      </li>
+      <li class="doc-item">
+        <a href="articles/rag-architecture.html">
+          <h2 class="doc-title">5. 企业级 RAG 架构落地指南</h2>
+          <p class="doc-desc">覆盖文档切分、向量检索、重排、提示模板与评估闭环，解决大模型问答中的“幻觉”与可追溯性问题。</p>
+        </a>
+      </li>
+    </ul>
+
+    <footer>© 2026 IT Docs Hub · 静态页面，可直接双击 index.html 本地浏览。</footer>
+  </main>
+</body>
+</html>

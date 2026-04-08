@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kubernetes 故障排查速查手册</title>
+  <style>
+    body{margin:0;font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#f8fafc;color:#0f172a;line-height:1.8}
+    .wrap{max-width:900px;margin:0 auto;padding:34px 20px 60px}
+    a{color:#0369a1;text-decoration:none}
+    h1,h2,h3{line-height:1.35}
+    pre{background:#0f172a;color:#e2e8f0;padding:12px;border-radius:10px;overflow:auto}
+    code{font-family:Consolas,monospace}
+    .back{display:inline-block;margin-bottom:18px}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <a class="back" href="../index.html">← 返回首页</a>
+    <h1>Kubernetes 故障排查速查手册</h1>
+    <p>这份文档面向日常值班和线上应急，目标是在最短时间内确定故障层级：应用问题、容器问题、集群网络问题，还是节点资源问题。</p>
+
+    <h2>1. 建立排查路径：先“面”后“点”</h2>
+    <ol>
+      <li><strong>看整体</strong>：确认是单服务异常，还是命名空间级/集群级故障。</li>
+      <li><strong>看对象状态</strong>：Deployment、Pod、Service、Ingress 是否健康。</li>
+      <li><strong>看事件与日志</strong>：Events 是第一现场，日志是业务证据。</li>
+      <li><strong>看节点与网络</strong>：CNI、CoreDNS、kube-proxy 异常会造成“大面积不可达”。</li>
+    </ol>
+
+    <h2>2. 高频故障场景与处理</h2>
+    <h3>2.1 Pod 卡在 Pending</h3>
+    <ul>
+      <li>资源不足：CPU/内存请求过高，调度器无法分配。</li>
+      <li>节点污点：未配置 tolerations。</li>
+      <li>PVC 未绑定：存储类、容量、访问模式不匹配。</li>
+    </ul>
+    <pre><code>kubectl get pod -n prod
+kubectl describe pod my-app-xxx -n prod
+kubectl get events -n prod --sort-by=.lastTimestamp</code></pre>
+
+    <h3>2.2 Pod 重启频繁（CrashLoopBackOff）</h3>
+    <ul>
+      <li>启动命令错误或依赖服务未就绪。</li>
+      <li>配置中心参数缺失、密钥挂载错误。</li>
+      <li>内存限制太小，触发 OOMKilled。</li>
+    </ul>
+    <pre><code>kubectl logs my-app-xxx -n prod --previous
+kubectl describe pod my-app-xxx -n prod | grep -E "Reason|OOMKilled|Exit Code"</code></pre>
+
+    <h3>2.3 服务不可达（Service/Ingress）</h3>
+    <ul>
+      <li>Service selector 与 Pod label 不一致。</li>
+      <li>容器监听端口与 targetPort 不匹配。</li>
+      <li>Ingress 后端服务名或端口配置错误。</li>
+    </ul>
+    <pre><code>kubectl get svc,ep -n prod
+kubectl describe ingress app-ing -n prod</code></pre>
+
+    <h2>3. 生产环境建议</h2>
+    <ul>
+      <li>统一探针策略：startupProbe + livenessProbe + readinessProbe。</li>
+      <li>为关键服务配置 PDB，避免节点维护时全量中断。</li>
+      <li>启用资源配额与限制，防止“邻居噪声”。</li>
+      <li>将 kubectl 常用排查命令沉淀为脚本，减少手动误操作。</li>
+    </ul>
+
+    <h2>4. 值班应急模板</h2>
+    <p>建议团队固定采用「10分钟止血、30分钟定界、2小时复盘」机制：先恢复可用性，再查根因，最后更新 Runbook 与告警阈值。</p>
+  </main>
+</body>
+</html>
