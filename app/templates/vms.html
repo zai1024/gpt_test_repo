@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}虚拟机明细{% endblock %}
+{% block content %}
+<section class="hero">
+  <div><h1>虚拟机明细</h1><p>{% if snapshot %}Snapshot #{{ snapshot.id }} · {{ snapshot.captured_at.strftime('%Y-%m-%d %H:%M:%S') }} UTC{% endif %}</p></div>
+  <a class="button" href="{{ url_for('main.vm_export', **args) }}">导出 Excel</a>
+</section>
+<form class="search" method="get">
+  {% for key, value in args.items() %}{% if key != 'keyword' and key != 'page' %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}{% endfor %}
+  <input name="keyword" value="{{ args.get('keyword','') }}" placeholder="搜索虚拟机名、IP、管理员、描述">
+  <button>搜索</button>
+</form>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>虚拟机名</th><th>CPU</th><th>内存(GB)</th><th>磁盘(GB)</th><th>IP</th><th>操作系统</th><th>管理员</th><th>一级部门</th><th>二级部门</th><th>创建日期</th><th>描述</th></tr></thead>
+  <tbody>{% for vm in pagination.items %}<tr><td>{{ vm.name }}</td><td>{{ vm.cpu_cores }}</td><td>{{ vm.memory_gb }}</td><td>{{ vm.provisioned_disk_gb }}</td><td>{{ vm.ip_address }}</td><td>{{ vm.os_version }}</td><td>{{ vm.administrator }}</td><td>{{ vm.primary_department }}</td><td>{{ vm.secondary_department }}</td><td>{{ vm.creation_date or '' }}</td><td class="desc">{{ vm.description }}</td></tr>{% endfor %}</tbody>
+</table>
+</div>
+<div class="pager">
+  {% if pagination.has_prev %}<a href="{{ url_for('main.vm_detail', **args, page=pagination.prev_num) }}">上一页</a>{% endif %}
+  <span>第 {{ pagination.page }} / {{ pagination.pages or 1 }} 页，共 {{ pagination.total }} 条</span>
+  {% if pagination.has_next %}<a href="{{ url_for('main.vm_detail', **args, page=pagination.next_num) }}">下一页</a>{% endif %}
+</div>
+{% endblock %}
