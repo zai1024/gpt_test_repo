@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+{% set snapshot = data.snapshot %}
+{% if not snapshot %}
+<section class="empty">
+  <h1>暂无 vCenter 数据</h1>
+  <p>请检查 .env 配置后执行 <code>python scripts/sync_once.py</code> 或调用 <code>POST /api/sync</code>。</p>
+</section>
+{% else %}
+<section class="hero">
+  <div>
+    <h1>{{ snapshot.vcenter_name }}</h1>
+    <p>vCenter {{ snapshot.vcenter_version }} · 采集时间 {{ snapshot.captured_at.strftime('%Y-%m-%d %H:%M:%S') }} UTC</p>
+  </div>
+  <a class="button" href="{{ url_for('main.vm_detail') }}">查看全部 {{ snapshot.vm_count }} 台虚拟机</a>
+</section>
+
+<section class="cards">
+  <div class="card"><span>CPU</span><strong>{{ snapshot.cpu_used_cores }} / {{ snapshot.cpu_total_cores }}</strong><small>已使用 / 总核数</small></div>
+  <div class="card"><span>内存</span><strong>{{ snapshot.memory_used_gb }} / {{ snapshot.memory_total_gb }} GB</strong><small>已使用 / 总容量</small></div>
+  <a class="card clickable" href="{{ url_for('main.vm_detail') }}"><span>虚拟机</span><strong>{{ snapshot.vm_count }}</strong><small>点击查看明细与导出</small></a>
+  <div class="card"><span>最近同步</span><strong>{{ data.last_sync.status if data.last_sync else '未知' }}</strong><small>{{ data.last_sync.message if data.last_sync else '' }}</small></div>
+</section>
+
+<section class="grid two">
+  <div class="panel"><h2>集群资源</h2><div id="clusterChart" class="chart tall"></div></div>
+  <div class="panel"><h2>超过 1TB 的卷空间</h2><div id="datastoreChart" class="chart tall"></div></div>
+</section>
+<section class="grid two">
+  <div class="panel"><h2>按操作系统统计</h2><div id="osChart" class="chart"></div></div>
+  <div class="panel"><h2>近 5 年创建趋势</h2><div id="yearChart" class="chart"></div></div>
+</section>
+<section class="grid two">
+  <div class="panel"><h2>最近 6 个月创建趋势</h2><div id="monthChart" class="chart"></div></div>
+  <div class="panel"><h2>一级部门统计</h2><div id="primaryDeptChart" class="chart"></div></div>
+</section>
+<section class="grid one">
+  <div class="panel"><h2>二级部门统计</h2><div id="secondaryDeptChart" class="chart tall"></div></div>
+</section>
+<script>window.dashboardSnapshotId = {{ snapshot.id }};</script>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>{% endblock %}

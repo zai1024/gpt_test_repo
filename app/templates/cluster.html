@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}{{ cluster_name }} 主机资源{% endblock %}
+{% block content %}
+<section class="hero"><div><h1>{{ cluster_name }}</h1><p>ESXi 主机 CPU/内存资源情况</p></div></section>
+<div class="panel"><div id="hostChart" class="chart tall"></div></div>
+<script>window.hostData = {{ host_data|tojson }};</script>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/cluster.js') }}"></script>{% endblock %}
